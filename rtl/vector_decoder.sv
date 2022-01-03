@@ -522,7 +522,7 @@ begin
             end
         end
         else
-            $error("Unrecognised major opcode");
+            $error("Unrecognised major opcode = ", major_opcode );
     end
 end
 

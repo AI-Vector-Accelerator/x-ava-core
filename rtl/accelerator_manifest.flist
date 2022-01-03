@@ -15,3 +15,4 @@ ${AVA_RTL_DIR}/vector_registers.sv
 ${AVA_RTL_DIR}/vw_sign_ext.sv
 ${AVA_RTL_DIR}/vector_lsu.sv
 ${AVA_RTL_DIR}/temporary_reg.sv
+${AVA_RTL_DIR}/accelerator_top_apu.sv
