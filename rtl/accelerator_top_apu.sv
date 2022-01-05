@@ -92,7 +92,8 @@ module xava(
     assign xif_issue.issue_ready = apu_gnt;
     assign apu_req = xif_issue.issue_valid;
     assign xif_issue.issue_resp.accept = '1; //Is copro accepted by processor?
-    assign xif_issue.issue_resp.writeback = '1; //Will copro writeback?
+    //assign xif_issue.issue_resp.writeback = apu_rvalid; //Will copro writeback?
+    assign xif_issue.issue_resp.writeback = (!acctop0.vec_reg_write && (acctop0.vdec0.state == 1));
 
     //COMMIT INTERFACE
     //assign ?? = xif_commit.commit_valid & ~xif_commit.commit_kill;
@@ -100,11 +101,26 @@ module xava(
 
 
     //RESULT INTERFACE
-    //assign ?? = xif_result.result_ready; //apu result is ready...
-    assign xif_result.result_valid = (apu_rvalid || !core_halt_o);
+    //assign ?? = xif_result.result_ready; //apu result is ready to be received...
+    //assign xif_result.result_valid = (apu_rvalid || !core_halt_o);
+    assign xif_result.result_valid = (1);
+
+    //logic apu_rvalid_q;
+    //logic delay;
+
+    //always_ff @(posedge clk_i, negedge rst_ni) begin
+    //if(!rst_ni) begin
+    //	if (delay)
+    //	    apu_rvalid_q <= apu_rvalid;
+    //	delay <= delay + 1; end
+    //else
+    //    apu_rvalid_q <= 0;
+    //    delay <= 0;
+    //end 
+    
     assign xif_result.result.id = '0;
     assign xif_result.result.data = apu_result;
-    assign xif_result.result.rd = '0;
+    assign xif_result.result.rd = xif_issue.issue_req.instr[11:7];
     assign xif_result.result.we = '1;
     assign xif_result.result.float = '0;
     assign xif_result.result.exc = '0;
