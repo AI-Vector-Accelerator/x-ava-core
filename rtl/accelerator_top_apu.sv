@@ -21,7 +21,9 @@ module xava(
     output logic [31:0]           data_addr_o,
     output logic                  data_we_o,
     output logic [3:0]            data_be_o,
-    output logic [31:0]           data_wdata_o
+    output logic [31:0]           data_wdata_o,
+
+    output logic core_halt_o
 
     );
 
@@ -45,7 +47,7 @@ module xava(
     //wire  [31:0] data_addr_o;
     //wire  [31:0] data_wdata_o;
     //wire  [31:0] data_rdata_i;
-    wire         core_halt_o;
+    //wire         core_halt_o;
 
 
     accelerator_top acctop0(
@@ -103,33 +105,44 @@ module xava(
     //assign ?? = xif_commit.commit_valid & xif_commit.commit_kill;
 
 
-    logic result_ready;
     logic [31:0] temp_apu_result;
     logic temp_apu_rvalid;
-    always_ff @(posedge clk_i, negedge rst_ni)
+    logic [31:0] temp_apu_result2;
+    logic temp_apu_rvalid2;
+    logic [1:0] stall;
+    always_ff @(posedge clk_i, negedge rst_ni) //stall ava output for result to be written back
     if(~rst_ni)
     begin
+	stall <= 0;
         temp_apu_result <= '0;
-	result_ready <= '0;
 	temp_apu_rvalid <= '0;
     end
     else begin
             temp_apu_result <= apu_result;
             temp_apu_rvalid <= apu_rvalid;
-            //result_ready <= result_ready + 1;
+
+            //temp_apu_result <= temp_apu_result2;
+            //temp_apu_rvalid <= temp_apu_rvalid2;
     end
+    //else if (temp_apu_rvalid2 == 1)
+	 //   stall <= 1;
+    //else begin
+//	    temp_apu_result2 = apu_result;
+//          temp_apu_rvalid2 = apu_rvalid;
+//    end
+    
+    
 
     //RESULT INTERFACE
-    //assign result_ready = xif_result.result_ready; //apu result is ready to be received...
     assign xif_result.result_valid = (temp_apu_rvalid);
     //assign xif_result.result_valid = (apu_rvalid || !result_ready);
 
     assign xif_result.result.id = '0;
     //assign xif_result.result.data = apu_result;
     assign xif_result.result.data = temp_apu_result;
-    assign xif_result.result.rd = xif_issue.issue_req.instr[11:7];
+    assign xif_result.result.rd = xif_issue.issue_req.instr[11:7]; //unimplemented as of 22/01/22
     //assign xif_result.result.rd = '0;
-    assign xif_result.result.we = '1;
+    assign xif_result.result.we = temp_apu_rvalid; //unimplemented as of 22/01/22
     assign xif_result.result.float = '0;
     assign xif_result.result.exc = '0;
     assign xif_result.result.exccode = '0;
