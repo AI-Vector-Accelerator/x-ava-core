@@ -1,0 +1,54 @@
+CAPI=2:
+
+name : ::x-ava-core:0
+
+filesets:
+  rtl:
+    files:
+      - accelerator_pkg.sv
+      - address_unit.sv
+      - arith_stage.sv
+      - bit_ext.sv
+      - pe_32b.sv
+      - relu_bound.sv
+      - sat_unit.sv
+      - scalar_replicate.sv
+      - temporary_reg.sv
+      - vector_csrs.sv
+      - vector_decoder.sv
+      - vector_lsu.sv
+      - vector_registers.sv
+      - vw_sign_ext.sv
+      - accelerator_top.sv
+    file_type : systemVerilogSource
+
+  tb_sat_unit:
+    files:
+      - sat_unit.sv : {is_include_file : true}
+      - tb/tb_sat_unit.sv
+    file_type : systemVerilogSource
+
+targets:
+  default:
+    filesets : [rtl]
+
+  lint:
+    default_tool : verilator
+    filesets : [rtl]
+    tools:
+      verilator_options :
+        mode : lint-only
+    toplevel : accelerator_top
+
+  synth:
+    default_tool : vivado
+    filesets : [rtl]
+    toplevel : accelerator_top
+
+  tb_sat_unit:
+    default_tool : icarus
+    filesets : [tb_sat_unit]
+    tools:
+      icarus:
+        iverilog_options : [-g2012]
+    toplevel : tb_sat_unit
